@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.1.0...v1.2.0) (2026-03-15)
+
+
+### Features
+
+* Enhance JWT configuration and setup with detailed descriptions and provider initialization ([#4](https://github.com/slice-soft/ss-keel-jwt/issues/4)) ([cdc67e8](https://github.com/slice-soft/ss-keel-jwt/commit/cdc67e80579077a3d362ec29304cfa8cc19771c9))
+
 ## [1.1.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.0.0...v1.1.0) (2026-03-15)
 
 
