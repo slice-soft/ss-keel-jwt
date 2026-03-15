@@ -1,21 +1,44 @@
 {
-  "name": "my-addon",
+  "name": "ss-keel-jwt",
   "version": "0.1.0",
-  "description": "Description of my addon",
-  "register": true,
-  "repo": "github.com/your-user/your-repo",
+  "description": "JWT authentication guard for Keel — token generation, validation, and route protection",
+  "repo": "github.com/slice-soft/ss-keel-jwt",
   "steps": [
     {
-      "file": "cmd/main.go",
-      "action": "append",
-      "snippet": "// TODO: add addon initialization here",
-      "flags": []
+      "type": "go_get",
+      "package": "github.com/slice-soft/ss-keel-jwt"
     },
     {
-      "file": "config/config.go",
-      "action": "append",
-      "snippet": "// TODO: add addon configuration here",
-      "flags": []
+      "type": "env",
+      "key": "JWT_SECRET",
+      "example": "change-me-in-production",
+      "description": "Secret key used to sign and verify JWT tokens"
+    },
+    {
+      "type": "env",
+      "key": "JWT_ISSUER",
+      "example": "my-app",
+      "description": "Token issuer claim (iss)"
+    },
+    {
+      "type": "env",
+      "key": "JWT_TOKEN_TTL_HOURS",
+      "example": "24",
+      "description": "Token time-to-live in hours (default 24)"
+    },
+    {
+      "type": "main_import",
+      "path": "github.com/slice-soft/ss-keel-jwt/jwt"
+    },
+    {
+      "type": "main_import",
+      "path": "github.com/slice-soft/ss-keel-core/config"
+    },
+    {
+      "type": "main_code",
+      "anchor": "before_listen",
+      "guard": "jwt.New(",
+      "code": "jwtProvider, err := jwt.New(jwt.Config{\n\tSecretKey:     config.GetEnvOrDefault(\"JWT_SECRET\", \"change-me-in-production\"),\n\tIssuer:        config.GetEnvOrDefault(\"JWT_ISSUER\", \"my-app\"),\n\tTokenTTLHours: 24,\n\tLogger:        appLogger,\n})\nif err != nil {\n\tappLogger.Error(\"failed to initialize JWT: %v\", err)\n}"
     }
   ]
 }
