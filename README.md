@@ -1,163 +1,130 @@
 <img src="https://cdn.slicesoft.dev/boat.svg" width="400" />
 
-# Keel Addon Template
-Keel is a Go framework for building REST APIs with modular 
-architecture, automatic OpenAPI, and built-in validation.
+# ss-keel-jwt
+Keel is a Go framework for building REST APIs with modular architecture, automatic OpenAPI, and built-in validation.
 
-[![CI](https://github.com/slice-soft/ss-keel-core/actions/workflows/ci.yml/badge.svg)](https://github.com/slice-soft/ss-keel-core/actions)
+[![CI](https://github.com/slice-soft/ss-keel-jwt/actions/workflows/ci.yml/badge.svg)](https://github.com/slice-soft/ss-keel-jwt/actions)
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
-[![Go Report Card](https://goreportcard.com/badge/github.com/slice-soft/ss-keel-core)](https://goreportcard.com/report/github.com/slice-soft/ss-keel-core)
-[![Go Reference](https://pkg.go.dev/badge/github.com/slice-soft/ss-keel-core.svg)](https://pkg.go.dev/github.com/slice-soft/ss-keel-core)
+[![Go Reference](https://pkg.go.dev/badge/github.com/slice-soft/ss-keel-jwt.svg)](https://pkg.go.dev/github.com/slice-soft/ss-keel-jwt)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Made in Colombia](https://img.shields.io/badge/Made%20in-Colombia-FCD116?labelColor=003893)
 
 
-This repository is a **base template** for building **Keel Framework** addons.
-It helps developers and companies quickly create functional addons with CI/CD, testing, and automated releases.
-It also serves as a reference for the `keel-addon.json` contract used by the CLI to download and integrate addons into Keel projects.
+## JWT authentication addon for Keel
+
+`ss-keel-jwt` adds JWT token generation, validation, and route protection to a [Keel](https://keel-go.dev) project.
+It is the official authentication guard addon for JSON Web Tokens in the Keel ecosystem.
 
 ---
 
-## 🚀 Template structure
-
-```
-ss-keel-addon-template/
-├── .github/workflows/    # CI and release workflows (commented by default)
-│   ├── ci.yml
-│   └── release.yml
-├── .gitignore
-├── .release-please-manifest.json
-├── .release-please-config.json
-├── CONTRIBUTING.md       # Contribution guide
-├── keel-addon.json       # Addon contract for the CLI
-├── LICENSE
-├── README.md
-└── go.mod
-```
-
----
-
-## 🛠️ Create a new addon
-
-Recommended option (GitHub Template):
-
-1. Open this repository on GitHub.
-2. Click **Use this template**.
-3. Create your new repository from this template.
-4. Clone your new repository locally.
-
-Alternative option (manual clone):
+## 🚀 Installation
 
 ```bash
-# Clone the template into a new project
-git clone https://github.com/slice-soft/ss-keel-addon-template.git my-addon
-cd my-addon
-
-# Delete the existing git history
-rm -rf .git
-
-# Initialize a new git repository
-git init
-
-# Update the Go module path
-go mod edit -module github.com/my-company/my-addon
-go mod tidy
+keel add jwt
 ```
 
-> `my-addon` is now ready to be developed and registered in Keel.
-
-Edit `keel-addon.json` with your addon's real values (`name`, `repo`, `version`, `steps`, etc.).
+The Keel CLI will:
+1. Add `github.com/slice-soft/ss-keel-jwt` as a dependency.
+2. Import the `jwt` package in `cmd/main.go` and inject initialization code.
+3. Add `JWT_SECRET`, `JWT_ISSUER`, and `JWT_TOKEN_TTL_HOURS` environment variable examples to your `.env`.
 
 ---
 
-## ⚡️ Keel integration
+## ⚙️ Bootstrap
 
-* Place your addon logic in `internal/addon`.
-* Define metadata in `keel-addon.json`. This file is the contract the Keel CLI validates to install and integrate the addon.
+```go
+import (
+    "github.com/slice-soft/ss-keel-jwt/jwt"
+    "github.com/slice-soft/ss-keel-core/config"
+)
 
-```json
-{
-  "name": "my-addon",
-  "version": "0.1.0",
-  "description": "Short addon description",
-  "register": true,
-  "repo": "github.com/your-user/your-repo",
-  "steps": [
-    {
-      "file": "cmd/main.go",
-      "action": "append",
-      "snippet": "// TODO: add addon initialization here",
-      "flags": []
-    }
-  ]
+jwtProvider, err := jwt.New(jwt.Config{
+    SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
+    Issuer:        config.GetEnvOrDefault("JWT_ISSUER", "my-app"),
+    TokenTTLHours: 24,
+    Logger:        appLogger,
+})
+if err != nil {
+    appLogger.Error("failed to initialize JWT: %v", err)
 }
 ```
 
-* The Keel CLI uses this file to:
-  * Resolve the module to download (`repo`).
-  * Validate that the addon matches the expected format.
-  * Execute `steps` to integrate changes automatically.
-  * Register the addon when applicable (`register`).
+Defaults applied when not set:
+
+| Field | Default |
+|---|---|
+| `Issuer` | `"keel"` |
+| `TokenTTLHours` | `24` |
 
 ---
 
-## 🧭 `keel add` flow in the ecosystem
+## 🔑 Generate a token
 
-The CLI supports two installation paths:
-
-1. **Official or verified addons**
-
-```bash
-keel add gorm
+```go
+token, err := jwtProvider.GenerateToken(map[string]any{
+    "userID": user.ID,
+    "role":   user.Role,
+})
 ```
 
-* `gorm` is interpreted as an alias.
-* The CLI checks the `ss-keel-addons` alias repository.
-* If the alias exists, it gets the addon URL, downloads it, and validates its `keel-addon.json`.
-* Then it executes the defined `steps` to integrate it automatically into the project.
-
-2. **Unofficial addons or addons not verified by SliceSoft/community**
-
-```bash
-keel add github.com/user/repo
-```
-
-* The CLI uses the provided repository directly.
-* It downloads the module and validates its `keel-addon.json`.
-* If validation passes, it applies the automatic integration steps the same way as official addons.
+The payload is stored in the `"data"` claim. All standard claims (`iss`, `iat`, `exp`) are set automatically.
 
 ---
 
-## 📚 Alias library: `ss-keel-addons`
+## 🔒 Protect routes
 
-`ss-keel-addons` works as an alias catalog/library for addons.
+`jwt.JWT` implements `contracts.Guard`. Use `Middleware()` to protect any route or group:
 
-* Stores the relationship `alias -> repository URL`.
-* Lets the CLI verify whether an alias exists before installing.
-* Centralizes official or community-verified addons.
-* Acts as the entry point for pre-validation before the automatic download and integration process.
+```go
+// Per route
+httpx.GET("/profile", profileHandler).
+    Use(jwtProvider.Middleware()).
+    WithSecured("bearerAuth")
+```
+
+The middleware reads the `Authorization` header (with or without `Bearer ` prefix), validates the token, and stores the claims in the request context for downstream handlers.
+
+---
+
+## 👤 Access the authenticated payload
+
+```go
+func profileHandler(c *httpx.Ctx) error {
+    claims, ok := jwt.ClaimsFromCtx(c.Ctx)
+    if !ok {
+        return c.Status(401).JSON(fiber.Map{"error": "not authenticated"})
+    }
+
+    data := claims["data"].(map[string]any)
+    return c.OK(fiber.Map{
+        "userID": data["userID"],
+        "role":   data["role"],
+    })
+}
+```
+
+---
+
+## 🔄 Refresh tokens
+
+```go
+newToken, err := jwtProvider.RefreshToken(oldToken)
+```
+
+`RefreshToken` validates the given token and issues a new one with a fresh `iat` and `exp`. The `"data"` payload is preserved.
+
+---
+
+## ❤️ Health checker
+
+JWT does not expose a health checker — there is no external connection to verify. The guard is stateless.
 
 ---
 
 ## 🤚 CI/CD and releases
 
-This repository is a template, so workflows are intentionally shipped **commented out** to avoid accidental executions after cloning:
-
-* `.github/workflows/ci.yml`
-* `.github/workflows/release.yml`
-
-To enable CI/CD in your new addon repository:
-
-1. Uncomment both workflow files.
-2. Push to GitHub to validate that Actions run correctly.
-
----
-
-## 💡 Recommendations
-
-* Keep your addons independent and modular.
-* Use Keel events and guards to extend functionality without touching the core.
-* Document each addon in its own project README.
+- **CI** runs on every pull request targeting `main` via `.github/workflows/ci.yml`.
+- **Releases** are created automatically on merge to `main` via `.github/workflows/release.yml` using Release Please.
 
 ---
 
@@ -184,7 +151,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Links
 
 - Website: [keel-go.dev](https://keel-go.dev)
-- GitHub: [github.com/slice-soft/ss-keel-cli](https://github.com/slice-soft/ss-keel-cli)
+- GitHub: [github.com/slice-soft/ss-keel-jwt](https://github.com/slice-soft/ss-keel-jwt)
 - Documentation: [docs.keel-go.dev](https://docs.keel-go.dev)
 
 ---
