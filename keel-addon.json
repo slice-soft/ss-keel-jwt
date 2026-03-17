@@ -17,8 +17,8 @@
     {
       "type": "env",
       "key": "JWT_ISSUER",
-      "example": "",
-      "description": "Token issuer claim (iss). Defaults to SERVICE_NAME env var when empty"
+      "example": "{{SERVICE_NAME}}",
+      "description": "Token issuer claim (iss). Defaults to SERVICE_NAME when empty"
     },
     {
       "type": "env",
@@ -30,13 +30,13 @@
       "type": "create_provider_file",
       "filename": "cmd/setup_jwt.go",
       "guard": "func setupJWT(",
-      "content": "package main\n\nimport (\n\t\"github.com/slice-soft/ss-keel-core/config\"\n\t\"github.com/slice-soft/ss-keel-core/core\"\n\t\"github.com/slice-soft/ss-keel-core/logger\"\n\t\"github.com/slice-soft/ss-keel-jwt/jwt\"\n)\n\n// setupJWT initialises the JWT provider used for token signing and route protection.\n// The issuer defaults to SERVICE_NAME so tokens are namespaced per service.\nfunc setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {\n\t_ = app // reserved for future health checker support\n\tissuer := config.GetEnvOrDefault(\"JWT_ISSUER\",\n\t\tconfig.GetEnvOrDefault(\"SERVICE_NAME\", \"keel-app\"))\n\tjwtProvider, err := jwt.New(jwt.Config{\n\t\tSecretKey:     config.GetEnvOrDefault(\"JWT_SECRET\", \"change-me-in-production\"),\n\t\tIssuer:        issuer,\n\t\tTokenTTLHours: 24,\n\t\tLogger:        log,\n\t})\n\tif err != nil {\n\t\tlog.Error(\"failed to initialize JWT: %v\", err)\n\t}\n\treturn jwtProvider\n}\n"
+      "content": "package main\n\nimport (\n\t\"strings\"\n\n\t\"github.com/slice-soft/ss-keel-core/config\"\n\t\"github.com/slice-soft/ss-keel-core/core\"\n\t\"github.com/slice-soft/ss-keel-core/logger\"\n\t\"github.com/slice-soft/ss-keel-jwt/jwt\"\n)\n\n// setupJWT initialises the JWT provider used for token signing and route protection.\n// The issuer defaults to SERVICE_NAME so tokens are namespaced per service.\nfunc setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {\n\t_ = app // reserved for future health checker support\n\n\tissuer := strings.TrimSpace(config.GetEnvOrDefault(\"JWT_ISSUER\", \"\"))\n\tif issuer == \"\" {\n\t\tissuer = config.GetEnvOrDefault(\"SERVICE_NAME\", \"keel-app\")\n\t}\n\n\tjwtProvider, err := jwt.New(jwt.Config{\n\t\tSecretKey:     config.GetEnvOrDefault(\"JWT_SECRET\", \"change-me-in-production\"),\n\t\tIssuer:        issuer,\n\t\tTokenTTLHours: uint(config.GetEnvIntOrDefault(\"JWT_TOKEN_TTL_HOURS\", 24)),\n\t\tLogger:        log,\n\t})\n\tif err != nil {\n\t\tlog.Error(\"failed to initialize JWT: %v\", err)\n\t}\n\treturn jwtProvider\n}\n"
     },
     {
       "type": "main_code",
-      "anchor": "before_listen",
+      "anchor": "before_modules",
       "guard": "setupJWT(",
-      "code": "jwtProvider := setupJWT(app, appLogger)"
+      "code": "_ = setupJWT(app, appLogger)"
     }
   ]
 }
