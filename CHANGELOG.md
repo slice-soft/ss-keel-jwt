@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.2.0...v1.3.0) (2026-03-17)
+
+
+### Features
+
+* Update JWT issuer handling and enhance setup instructions in README and JSON configuration ([#7](https://github.com/slice-soft/ss-keel-jwt/issues/7)) ([1013e82](https://github.com/slice-soft/ss-keel-jwt/commit/1013e82f1b5625d0b3d1a72c954cbf5c8d5c701c))
+
 ## [1.2.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.1.0...v1.2.0) (2026-03-15)
 
 
