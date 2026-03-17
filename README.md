@@ -5,6 +5,7 @@ Keel is a Go framework for building REST APIs with modular architecture, automat
 
 [![CI](https://github.com/slice-soft/ss-keel-jwt/actions/workflows/ci.yml/badge.svg)](https://github.com/slice-soft/ss-keel-jwt/actions)
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
+[![Go Report Card](https://goreportcard.com/badge/github.com/slice-soft/ss-keel-jwt)](https://goreportcard.com/report/github.com/slice-soft/ss-keel-jwt)
 [![Go Reference](https://pkg.go.dev/badge/github.com/slice-soft/ss-keel-jwt.svg)](https://pkg.go.dev/github.com/slice-soft/ss-keel-jwt)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Made in Colombia](https://img.shields.io/badge/Made%20in-Colombia-FCD116?labelColor=003893)
@@ -118,6 +119,16 @@ newToken, err := jwtProvider.RefreshToken(oldToken)
 ## ❤️ Health checker
 
 JWT does not expose a health checker — there is no external connection to verify. The guard is stateless.
+
+---
+
+## ⚙️ Environment variables
+
+| Variable | Example | Description |
+|---|---|---|
+| `JWT_SECRET` | `change-me-in-production` | HMAC secret used to sign and verify tokens |
+| `JWT_ISSUER` | `my-app` | Token issuer claim (`iss`). Defaults to `"keel"` |
+| `JWT_TOKEN_TTL_HOURS` | `24` | Token time-to-live in hours. Defaults to `24` |
 
 ---
 
