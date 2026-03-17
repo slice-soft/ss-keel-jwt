@@ -35,14 +35,21 @@ The Keel CLI will:
 
 ```go
 import (
-    "github.com/slice-soft/ss-keel-jwt/jwt"
+    "strings"
+
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-jwt/jwt"
 )
+
+issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
+if issuer == "" {
+    issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+}
 
 jwtProvider, err := jwt.New(jwt.Config{
     SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
-    Issuer:        config.GetEnvOrDefault("JWT_ISSUER", "my-app"),
-    TokenTTLHours: 24,
+    Issuer:        issuer,
+    TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
     Logger:        appLogger,
 })
 if err != nil {
@@ -127,7 +134,7 @@ JWT does not expose a health checker — there is no external connection to veri
 | Variable | Example | Description |
 |---|---|---|
 | `JWT_SECRET` | `change-me-in-production` | HMAC secret used to sign and verify tokens |
-| `JWT_ISSUER` | `my-app` | Token issuer claim (`iss`). Defaults to `"keel"` |
+| `JWT_ISSUER` | `my-app` | Token issuer claim (`iss`). The generated Keel setup falls back to `SERVICE_NAME` when empty |
 | `JWT_TOKEN_TTL_HOURS` | `24` | Token time-to-live in hours. Defaults to `24` |
 
 ---
