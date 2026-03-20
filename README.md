@@ -61,7 +61,7 @@ Defaults applied when not set:
 
 | Field | Default |
 |---|---|
-| `Issuer` | `"keel"` |
+| `Issuer` | `SERVICE_NAME` env var (fallback: `"keel-app"`) |
 | `TokenTTLHours` | `24` |
 
 ---
