@@ -36,7 +36,7 @@
       "type": "main_code",
       "anchor": "before_modules",
       "guard": "setupJWT(",
-      "code": "_ = setupJWT(app, appLogger)"
+      "code": "jwtProvider := setupJWT(app, appLogger)\n// TODO: use jwtProvider.Middleware() to protect routes\n// Example: protected := app.Group(\"/api\", jwtProvider.Middleware())\n_ = jwtProvider"
     }
   ]
 }
