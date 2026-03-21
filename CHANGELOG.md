@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.3.0...v1.4.0) (2026-03-21)
+
+
+### Features
+
+* Update JWT setup to store provider and add route protection example ([#10](https://github.com/slice-soft/ss-keel-jwt/issues/10)) ([90defec](https://github.com/slice-soft/ss-keel-jwt/commit/90defec691d62d5624e23ef02468fe1babeec5b6))
+
 ## [1.3.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.2.0...v1.3.0) (2026-03-17)
 
 
