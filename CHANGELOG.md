@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.5.1...v1.6.0) (2026-03-25)
+
+
+### Features
+
+* Update JWT addon configuration and environment variables for improved flexibility ([#17](https://github.com/slice-soft/ss-keel-jwt/issues/17)) ([c6ccf14](https://github.com/slice-soft/ss-keel-jwt/commit/c6ccf149b31da5b98e47cccaa3832e410816d735))
+
 ## [1.5.1](https://github.com/slice-soft/ss-keel-jwt/compare/v1.5.0...v1.5.1) (2026-03-25)
 
 
