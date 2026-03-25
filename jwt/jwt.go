@@ -18,6 +18,7 @@ const localsKey = "jwt_claims"
 type JWT struct {
 	cfg    Config
 	logger contracts.Logger
+	events chan contracts.PanelEvent
 }
 
 var _ contracts.Guard = (*JWT)(nil)
@@ -29,7 +30,7 @@ func New(cfg Config) (*JWT, error) {
 	if err := cfg.withDefaults(); err != nil {
 		return nil, err
 	}
-	return &JWT{cfg: cfg, logger: cfg.Logger}, nil
+	return &JWT{cfg: cfg, logger: cfg.Logger, events: make(chan contracts.PanelEvent, 256)}, nil
 }
 
 // Sign creates a signed HS256 JWT with the given subject in the "sub" claim
@@ -48,6 +49,23 @@ func (j *JWT) Sign(subject string, data map[string]any) (string, error) {
 	}
 	token := gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString([]byte(j.cfg.SecretKey))
+	level := "info"
+	detail := map[string]any{
+		"subject": subject,
+		"issuer":  j.cfg.Issuer,
+		"result":  "ok",
+	}
+	if err != nil {
+		detail["result"] = "error"
+		level = "error"
+	}
+	j.tryEmit(contracts.PanelEvent{
+		Timestamp: time.Now(),
+		AddonID:   "jwt",
+		Label:     "sign",
+		Level:     level,
+		Detail:    detail,
+	})
 	if err != nil {
 		return "", fmt.Errorf("jwt: sign token: %w", err)
 	}
@@ -68,6 +86,22 @@ func (j *JWT) GenerateToken(data any) (string, error) {
 	}
 	token := gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString([]byte(j.cfg.SecretKey))
+	level := "info"
+	detail := map[string]any{
+		"issuer": j.cfg.Issuer,
+		"result": "ok",
+	}
+	if err != nil {
+		detail["result"] = "error"
+		level = "error"
+	}
+	j.tryEmit(contracts.PanelEvent{
+		Timestamp: time.Now(),
+		AddonID:   "jwt",
+		Label:     "generate_token",
+		Level:     level,
+		Detail:    detail,
+	})
 	if err != nil {
 		return "", fmt.Errorf("jwt: sign token: %w", err)
 	}
@@ -85,12 +119,33 @@ func (j *JWT) ValidateToken(tokenString string) (gojwt.MapClaims, error) {
 		return []byte(j.cfg.SecretKey), nil
 	}, gojwt.WithExpirationRequired())
 	if err != nil {
+		j.tryEmit(contracts.PanelEvent{
+			Timestamp: time.Now(),
+			AddonID:   "jwt",
+			Label:     "validate_token",
+			Level:     "warn",
+			Detail:    map[string]any{"issuer": j.cfg.Issuer, "result": "error"},
+		})
 		return nil, fmt.Errorf("jwt: %w", err)
 	}
 	claims, ok := token.Claims.(gojwt.MapClaims)
 	if !ok || !token.Valid {
+		j.tryEmit(contracts.PanelEvent{
+			Timestamp: time.Now(),
+			AddonID:   "jwt",
+			Label:     "validate_token",
+			Level:     "warn",
+			Detail:    map[string]any{"issuer": j.cfg.Issuer, "result": "error"},
+		})
 		return nil, errors.New("jwt: invalid claims")
 	}
+	j.tryEmit(contracts.PanelEvent{
+		Timestamp: time.Now(),
+		AddonID:   "jwt",
+		Label:     "validate_token",
+		Level:     "info",
+		Detail:    map[string]any{"issuer": j.cfg.Issuer, "result": "ok"},
+	})
 	return claims, nil
 }
 
@@ -145,4 +200,13 @@ func ClaimsFromCtx(c *fiber.Ctx) (gojwt.MapClaims, bool) {
 
 func stripBearer(s string) string {
 	return strings.TrimPrefix(s, "Bearer ")
+}
+
+// tryEmit sends an event to the panel channel without blocking.
+// If the channel is full the event is silently dropped.
+func (j *JWT) tryEmit(e contracts.PanelEvent) {
+	select {
+	case j.events <- e:
+	default:
+	}
 }
