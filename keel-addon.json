@@ -9,15 +9,34 @@
       "package": "github.com/slice-soft/ss-keel-jwt"
     },
     {
+      "type": "property",
+      "key": "jwt.secret",
+      "example": "${JWT_SECRET:change-me-in-production}",
+      "description": "Secret key used to sign and verify JWT tokens."
+    },
+    {
+      "type": "property",
+      "key": "jwt.issuer",
+      "example": "${JWT_ISSUER:}",
+      "description": "Token issuer claim. When empty the generated setup falls back to app.name."
+    },
+    {
+      "type": "property",
+      "key": "jwt.token-ttl-hours",
+      "example": "${JWT_TOKEN_TTL_HOURS:24}",
+      "description": "Token time-to-live in hours."
+    },
+    {
       "type": "env",
       "key": "JWT_SECRET",
       "example": "change-me-in-production",
-      "description": "Secret key used to sign and verify JWT tokens — use a long random string in production"
+      "description": "Secret key used to sign and verify JWT tokens — use a long random string in production",
+      "secret": true
     },
     {
       "type": "env",
       "key": "JWT_ISSUER",
-      "example": "{{SERVICE_NAME}}",
+      "example": "",
       "description": "Token issuer claim (iss). Defaults to SERVICE_NAME when empty"
     },
     {
@@ -30,7 +49,7 @@
       "type": "create_provider_file",
       "filename": "cmd/setup_jwt.go",
       "guard": "func setupJWT(",
-      "content": "package main\n\nimport (\n\t\"strings\"\n\n\t\"github.com/slice-soft/ss-keel-core/config\"\n\t\"github.com/slice-soft/ss-keel-core/core\"\n\t\"github.com/slice-soft/ss-keel-core/logger\"\n\t\"github.com/slice-soft/ss-keel-jwt/jwt\"\n)\n\n// setupJWT initialises the JWT provider used for token signing and route protection.\n// The issuer defaults to SERVICE_NAME so tokens are namespaced per service.\nfunc setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {\n\t_ = app // reserved for future health checker support\n\n\tissuer := strings.TrimSpace(config.GetEnvOrDefault(\"JWT_ISSUER\", \"\"))\n\tif issuer == \"\" {\n\t\tissuer = config.GetEnvOrDefault(\"SERVICE_NAME\", \"keel-app\")\n\t}\n\n\tjwtProvider, err := jwt.New(jwt.Config{\n\t\tSecretKey:     config.GetEnvOrDefault(\"JWT_SECRET\", \"change-me-in-production\"),\n\t\tIssuer:        issuer,\n\t\tTokenTTLHours: uint(config.GetEnvIntOrDefault(\"JWT_TOKEN_TTL_HOURS\", 24)),\n\t\tLogger:        log,\n\t})\n\tif err != nil {\n\t\tlog.Error(\"failed to initialize JWT: %v\", err)\n\t}\n\treturn jwtProvider\n}\n"
+      "content": "package main\n\nimport (\n\t\"strings\"\n\n\t\"github.com/slice-soft/ss-keel-core/config\"\n\t\"github.com/slice-soft/ss-keel-core/core\"\n\t\"github.com/slice-soft/ss-keel-core/logger\"\n\t\"github.com/slice-soft/ss-keel-jwt/jwt\"\n)\n\ntype jwtSetupConfig struct {\n\tAppName       string `keel:\"app.name,required\"`\n\tSecretKey     string `keel:\"jwt.secret,required\"`\n\tIssuer        string `keel:\"jwt.issuer\"`\n\tTokenTTLHours uint   `keel:\"jwt.token-ttl-hours,required\"`\n}\n\n// setupJWT initialises the JWT provider used for token signing and route protection.\n// The issuer defaults to app.name so tokens are namespaced per service.\nfunc setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {\n\t_ = app // reserved for future health checker support\n\n\tjwtConfig := config.MustLoadConfig[jwtSetupConfig]()\n\tissuer := strings.TrimSpace(jwtConfig.Issuer)\n\tif issuer == \"\" {\n\t\tissuer = jwtConfig.AppName\n\t}\n\n\tjwtProvider, err := jwt.New(jwt.Config{\n\t\tSecretKey:     jwtConfig.SecretKey,\n\t\tIssuer:        issuer,\n\t\tTokenTTLHours: jwtConfig.TokenTTLHours,\n\t\tLogger:        log,\n\t})\n\tif err != nil {\n\t\tlog.Error(\"failed to initialize JWT: %v\", err)\n\t}\n\treturn jwtProvider\n}\n"
     },
     {
       "type": "main_code",

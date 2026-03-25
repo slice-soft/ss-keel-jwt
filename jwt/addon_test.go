@@ -93,17 +93,26 @@ func TestAddon_Manifest_EnvVars(t *testing.T) {
 	if secret.Key != "JWT_SECRET" {
 		t.Errorf("EnvVars[0].Key = %q, want JWT_SECRET", secret.Key)
 	}
-	if !secret.Required {
-		t.Error("EnvVars[0].Required should be true")
+	if secret.ConfigKey != "jwt.secret" {
+		t.Errorf("EnvVars[0].ConfigKey = %q, want jwt.secret", secret.ConfigKey)
+	}
+	if secret.Required {
+		t.Error("EnvVars[0].Required should be false")
 	}
 	if !secret.Secret {
 		t.Error("EnvVars[0].Secret should be true")
+	}
+	if secret.Default != "change-me-in-production" {
+		t.Errorf("EnvVars[0].Default = %q, want %q", secret.Default, "change-me-in-production")
 	}
 
 	// JWT_ISSUER — not required, not secret
 	issuer := m.EnvVars[1]
 	if issuer.Key != "JWT_ISSUER" {
 		t.Errorf("EnvVars[1].Key = %q, want JWT_ISSUER", issuer.Key)
+	}
+	if issuer.ConfigKey != "jwt.issuer" {
+		t.Errorf("EnvVars[1].ConfigKey = %q, want jwt.issuer", issuer.ConfigKey)
 	}
 	if issuer.Required {
 		t.Error("EnvVars[1].Required should be false")
@@ -116,6 +125,9 @@ func TestAddon_Manifest_EnvVars(t *testing.T) {
 	ttl := m.EnvVars[2]
 	if ttl.Key != "JWT_TOKEN_TTL_HOURS" {
 		t.Errorf("EnvVars[2].Key = %q, want JWT_TOKEN_TTL_HOURS", ttl.Key)
+	}
+	if ttl.ConfigKey != "jwt.token-ttl-hours" {
+		t.Errorf("EnvVars[2].ConfigKey = %q, want jwt.token-ttl-hours", ttl.ConfigKey)
 	}
 	if ttl.Default != "24" {
 		t.Errorf("EnvVars[2].Default = %q, want 24", ttl.Default)

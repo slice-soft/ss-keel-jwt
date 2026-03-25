@@ -30,14 +30,16 @@ func (j *JWT) Manifest() contracts.AddonManifest {
 		EnvVars: []contracts.EnvVar{
 			{
 				Key:         "JWT_SECRET",
+				ConfigKey:   "jwt.secret",
 				Description: "HMAC secret key used to sign tokens",
-				Required:    true,
+				Required:    false,
 				Secret:      true,
-				Default:     "",
+				Default:     "change-me-in-production",
 				Source:      "jwt",
 			},
 			{
 				Key:         "JWT_ISSUER",
+				ConfigKey:   "jwt.issuer",
 				Description: "Issuer claim value (iss). Defaults to SERVICE_NAME.",
 				Required:    false,
 				Secret:      false,
@@ -46,6 +48,7 @@ func (j *JWT) Manifest() contracts.AddonManifest {
 			},
 			{
 				Key:         "JWT_TOKEN_TTL_HOURS",
+				ConfigKey:   "jwt.token-ttl-hours",
 				Description: "Token time-to-live in hours",
 				Required:    false,
 				Secret:      false,
