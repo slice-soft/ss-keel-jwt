@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/slice-soft/ss-keel-jwt/compare/v1.5.0...v1.5.1) (2026-03-25)
+
+
+### Bug Fixes
+
+* Update ss-keel-core dependency to v0.10.0 in go.mod and go.sum ([#15](https://github.com/slice-soft/ss-keel-jwt/issues/15)) ([7bff096](https://github.com/slice-soft/ss-keel-jwt/commit/7bff09697eccdff3043290e8982412fad83ef8e5))
+
 ## [1.5.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.4.0...v1.5.0) (2026-03-25)
 
 
