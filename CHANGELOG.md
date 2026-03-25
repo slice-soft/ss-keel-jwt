@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.4.0...v1.5.0) (2026-03-25)
+
+
+### Features
+
+* Implement JWT addon for dev panel with event handling ([#13](https://github.com/slice-soft/ss-keel-jwt/issues/13)) ([25080b4](https://github.com/slice-soft/ss-keel-jwt/commit/25080b401611e9677d3600c16b488ceb7eaf00b9))
+
 ## [1.4.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.3.0...v1.4.0) (2026-03-21)
 
 
