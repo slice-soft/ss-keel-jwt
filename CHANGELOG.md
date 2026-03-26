@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.6.0...v1.7.0) (2026-03-26)
+
+
+### Features
+
+* Add note for next steps in JWT project route protection ([#19](https://github.com/slice-soft/ss-keel-jwt/issues/19)) ([0c1dcd4](https://github.com/slice-soft/ss-keel-jwt/commit/0c1dcd4c0ef28f1fbd2303a375474d813a9dda84))
+
 ## [1.6.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.5.1...v1.6.0) (2026-03-25)
 
 
