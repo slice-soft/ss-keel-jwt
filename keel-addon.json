@@ -56,6 +56,10 @@
       "anchor": "before_modules",
       "guard": "setupJWT(",
       "code": "jwtProvider := setupJWT(app, appLogger)\n// TODO: use jwtProvider.Middleware() to protect routes\n// Example: protected := app.Group(\"/api\", jwtProvider.Middleware())\n_ = jwtProvider"
+    },
+    {
+      "type": "note",
+      "message": "Next step for JWT projects: protect a route or route group with the generated provider.\n\nprotected := app.Group(\"/api\", jwtProvider.Middleware())\nhttpx.GET(\"/me\", handler).WithSecured(\"bearerAuth\")\n\nReference: ss-keel-examples/examples/11-jwt-addon"
     }
   ]
 }
