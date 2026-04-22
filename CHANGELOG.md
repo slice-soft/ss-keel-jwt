@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.7.0...v1.8.0) (2026-04-22)
+
+
+### Features
+
+* Update keel-addon.json structure and enhance JWT configuration details ([#21](https://github.com/slice-soft/ss-keel-jwt/issues/21)) ([c75915a](https://github.com/slice-soft/ss-keel-jwt/commit/c75915a2fa8691215d5adc5cc12066e919b701dd))
+
 ## [1.7.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.6.0...v1.7.0) (2026-03-26)
 
 
