@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/slice-soft/ss-keel-jwt/compare/v1.8.0...v1.8.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* simplify JWT setup code by removing unused middleware example ([#25](https://github.com/slice-soft/ss-keel-jwt/issues/25)) ([3fd6ccc](https://github.com/slice-soft/ss-keel-jwt/commit/3fd6ccc3a305f8a5b810bce1407351597fbe5f50))
+
 ## [1.8.0](https://github.com/slice-soft/ss-keel-jwt/compare/v1.7.0...v1.8.0) (2026-04-22)
 
 
