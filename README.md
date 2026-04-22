@@ -17,6 +17,9 @@ Official JWT addon for Keel — token generation, validation, and route protecti
 `ss-keel-jwt` adds JWT token generation, validation, and route protection to a [Keel](https://keel-go.dev) project.
 It is the official authentication guard addon for JSON Web Tokens in the Keel ecosystem.
 
+Current stable release: `v1.8.0` (2026-04-22)  
+Full documentation: [docs.keel-go.dev/en/addons/ss-keel-jwt](https://docs.keel-go.dev/en/addons/ss-keel-jwt/)
+
 ---
 
 ## 🚀 Installation
@@ -27,8 +30,8 @@ keel add jwt
 
 The Keel CLI will:
 1. Add `github.com/slice-soft/ss-keel-jwt` as a dependency.
-2. Import the `jwt` package in `cmd/main.go` and inject initialization code.
-3. Add `JWT_SECRET`, `JWT_ISSUER`, and `JWT_TOKEN_TTL_HOURS` environment variable examples to your `.env`.
+2. Create `cmd/setup_jwt.go` and inject `jwtProvider := setupJWT(app, appLogger)` into `cmd/main.go`.
+3. Add `jwt.secret`, `jwt.issuer`, and `jwt.token-ttl-hours` to `application.properties`, with matching `.env` examples.
 
 ---
 
@@ -39,22 +42,37 @@ import (
     "strings"
 
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
     "github.com/slice-soft/ss-keel-jwt/jwt"
 )
 
-issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
-if issuer == "" {
-    issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+type jwtSetupConfig struct {
+    AppName       string `keel:"app.name,required"`
+    SecretKey     string `keel:"jwt.secret,required"`
+    Issuer        string `keel:"jwt.issuer"`
+    TokenTTLHours uint   `keel:"jwt.token-ttl-hours,required"`
 }
 
-jwtProvider, err := jwt.New(jwt.Config{
-    SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
-    Issuer:        issuer,
-    TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
-    Logger:        appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to initialize JWT: %v", err)
+func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
+    _ = app // reserved for future health checker support
+
+    jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
+    issuer := strings.TrimSpace(jwtConfig.Issuer)
+    if issuer == "" {
+        issuer = jwtConfig.AppName
+    }
+
+    jwtProvider, err := jwt.New(jwt.Config{
+        SecretKey:     jwtConfig.SecretKey,
+        Issuer:        issuer,
+        TokenTTLHours: jwtConfig.TokenTTLHours,
+        Logger:        log,
+    })
+    if err != nil {
+        log.Error("failed to initialize JWT: %v", err)
+    }
+    return jwtProvider
 }
 ```
 
@@ -62,7 +80,7 @@ Defaults applied when not set:
 
 | Field | Default |
 |---|---|
-| `Issuer` | `SERVICE_NAME` env var (fallback: `"keel-app"`) |
+| `Issuer` | `app.name` from `application.properties` |
 | `TokenTTLHours` | `24` |
 
 ---
@@ -171,7 +189,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - Website: [keel-go.dev](https://keel-go.dev)
 - GitHub: [github.com/slice-soft/ss-keel-jwt](https://github.com/slice-soft/ss-keel-jwt)
-- Documentation: [docs.keel-go.dev](https://docs.keel-go.dev)
+- Documentation: [docs.keel-go.dev/en/addons/ss-keel-jwt](https://docs.keel-go.dev/en/addons/ss-keel-jwt/)
 
 ---
 
