@@ -17,7 +17,7 @@ Official JWT addon for Keel — token generation, validation, and route protecti
 `ss-keel-jwt` adds JWT token generation, validation, and route protection to a [Keel](https://keel-go.dev) project.
 It is the official authentication guard addon for JSON Web Tokens in the Keel ecosystem.
 
-Current stable release: `v1.8.0` (2026-04-22)  
+Current stable release: `v1.8.1` (2026-04-22)  
 Full documentation: [docs.keel-go.dev/en/addons/ss-keel-jwt](https://docs.keel-go.dev/en/addons/ss-keel-jwt/)
 
 ---
