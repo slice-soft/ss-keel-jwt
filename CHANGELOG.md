@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/slice-soft/ss-keel-jwt/compare/v1.8.1...v1.8.2) (2026-05-08)
+
+
+### Bug Fixes
+
+* update JWT setup code to use contracts.Logger for improved logging ([#29](https://github.com/slice-soft/ss-keel-jwt/issues/29)) ([c7a2b28](https://github.com/slice-soft/ss-keel-jwt/commit/c7a2b289df8b4f284b78af2a0c8842e2b6f3cf11))
+
 ## [1.8.1](https://github.com/slice-soft/ss-keel-jwt/compare/v1.8.0...v1.8.1) (2026-04-22)
 
 
